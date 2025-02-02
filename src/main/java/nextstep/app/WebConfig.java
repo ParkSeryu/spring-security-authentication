@@ -2,13 +2,15 @@ package nextstep.app;
 
 import nextstep.app.domain.Member;
 import nextstep.app.domain.MemberRepository;
-import nextstep.app.ui.BasicAuthenticationInterceptor;
-import nextstep.app.ui.FormLoginInterceptor;
+import nextstep.security.BasicAuthenticationFilter;
 import nextstep.security.UserDetails;
 import nextstep.security.UserDetailsService;
+import nextstep.security.UsernamePasswordAuthenticationFilter;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.filter.GenericFilterBean;
+import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
@@ -17,12 +19,6 @@ public class WebConfig implements WebMvcConfigurer {
 
     public WebConfig(MemberRepository memberRepository) {
         this.memberRepository = memberRepository;
-    }
-
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new FormLoginInterceptor(userDetailsService())).addPathPatterns("/login");
-        registry.addInterceptor(new BasicAuthenticationInterceptor(userDetailsService())).addPathPatterns("/members");
     }
 
     @Bean
@@ -42,5 +38,27 @@ public class WebConfig implements WebMvcConfigurer {
                 }
             };
         };
+    }
+
+    @Bean
+    public FilterRegistrationBean<OncePerRequestFilter> basicAuthFilter() {
+        FilterRegistrationBean<OncePerRequestFilter> filterRegistrationBean = new FilterRegistrationBean<>();
+
+        filterRegistrationBean.setFilter(new BasicAuthenticationFilter(userDetailsService()));
+
+        filterRegistrationBean.addUrlPatterns("/members");
+
+        return filterRegistrationBean;
+    }
+
+    @Bean
+    public FilterRegistrationBean<GenericFilterBean> usernamePasswordAuthenticationFilter() {
+        FilterRegistrationBean<GenericFilterBean> filterRegistrationBean = new FilterRegistrationBean<>();
+
+        filterRegistrationBean.setFilter(new UsernamePasswordAuthenticationFilter(userDetailsService()));
+
+        filterRegistrationBean.addUrlPatterns("/login");
+
+        return filterRegistrationBean;
     }
 }

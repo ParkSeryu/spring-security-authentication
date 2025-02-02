@@ -1,5 +1,11 @@
 package nextstep.app;
 
+import static org.hamcrest.Matchers.hasItem;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import nextstep.app.domain.Member;
 import nextstep.app.domain.MemberRepository;
 import nextstep.app.util.Base64Convertor;
@@ -12,12 +18,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-
-import static org.hamcrest.Matchers.hasItem;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -63,4 +63,21 @@ class BasicAuthTest {
         loginResponse.andDo(print());
         loginResponse.andExpect(status().isUnauthorized());
     }
+
+    @DisplayName("Basic Auth Header 불일치 시 에러 응답")
+    @Test
+    void shouldReturnErrorWhenBasicAuthHeaderIsMissing() throws Exception {
+        String token = TEST_MEMBER.getEmail() + ":" + TEST_MEMBER.getPassword();
+        String encoded = Base64Convertor.encode(token);
+
+        ResultActions loginResponse = mockMvc.
+                perform(get("/members")
+                        .header("Authorization", "Bearer " + encoded)
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                );
+
+        loginResponse.andDo(print());
+        loginResponse.andExpect(status().isUnauthorized());
+    }
+
 }

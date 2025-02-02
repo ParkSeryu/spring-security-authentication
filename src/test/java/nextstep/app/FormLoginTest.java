@@ -1,5 +1,10 @@
 package nextstep.app;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import jakarta.servlet.http.HttpSession;
 import nextstep.app.domain.Member;
 import nextstep.app.domain.MemberRepository;
@@ -12,10 +17,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -71,5 +72,17 @@ class FormLoginTest {
         );
 
         response.andExpect(status().isUnauthorized());
+    }
+
+    @DisplayName("로그인 실패 - http method 불일치")
+    @Test
+    void login_fail_with_invalid_http_method() throws Exception {
+        ResultActions response = mockMvc.perform(get("/login")
+                .param("username", TEST_MEMBER.getEmail())
+                .param("password", "invalid")
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+        );
+
+        response.andExpect(status().isMethodNotAllowed());
     }
 }
