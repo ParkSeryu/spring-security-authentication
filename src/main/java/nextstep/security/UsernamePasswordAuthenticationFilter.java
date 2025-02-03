@@ -7,8 +7,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.util.Map;
-import nextstep.app.ui.AuthenticationException;
-import nextstep.app.ui.AuthenticationServiceException;
+import nextstep.security.exception.AuthenticationException;
+import nextstep.security.exception.AuthenticationServiceException;
 import org.springframework.web.filter.GenericFilterBean;
 
 public class UsernamePasswordAuthenticationFilter extends GenericFilterBean {
