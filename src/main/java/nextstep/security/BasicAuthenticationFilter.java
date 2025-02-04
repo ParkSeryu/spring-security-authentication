@@ -3,17 +3,24 @@ package nextstep.security;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.List;
+import nextstep.security.authentication.AuthenticationManager;
+import nextstep.security.authentication.DaoAuthenticationProvider;
+import nextstep.security.authentication.ProviderManager;
+import nextstep.security.authentication.UsernamePasswordAuthenticationToken;
+import nextstep.security.core.Authentication;
 import nextstep.security.exception.AuthenticationException;
 import nextstep.security.util.Base64Convertor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 public class BasicAuthenticationFilter extends OncePerRequestFilter {
-    private final UserDetailsService userDetailsService;
     public static final String AUTHENTICATION_SCHEME_BASIC = "Basic";
 
+    private final AuthenticationManager authenticationManager;
+
     public BasicAuthenticationFilter(UserDetailsService userDetailsService) {
-        this.userDetailsService = userDetailsService;
+        this.authenticationManager = new ProviderManager(List.of(new DaoAuthenticationProvider(userDetailsService)));
     }
 
     @Override
@@ -42,10 +49,8 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
         String[] usernameAndPassword = decodedString.split(":");
         String username = usernameAndPassword[0];
         String password = usernameAndPassword[1];
-
-        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-        if (!userDetails.getPassword().equals(password)) {
-            throw new AuthenticationException();
-        }
+        Authentication authenticate = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(username, password, false));
+        this.authenticationManager.authenticate(authenticate);
     }
 }
