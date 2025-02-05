@@ -1,4 +1,4 @@
-package nextstep.security;
+package nextstep.security.authentication;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -10,11 +10,8 @@ import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import nextstep.security.authentication.AuthenticationManager;
-import nextstep.security.authentication.DaoAuthenticationProvider;
-import nextstep.security.authentication.ProviderManager;
-import nextstep.security.authentication.UsernamePasswordAuthenticationToken;
 import nextstep.security.core.Authentication;
+import nextstep.security.core.userdetails.UserDetailsService;
 import nextstep.security.exception.AuthenticationServiceException;
 import org.springframework.web.filter.GenericFilterBean;
 
@@ -35,7 +32,7 @@ public class UsernamePasswordAuthenticationFilter extends GenericFilterBean {
             chain.doFilter(request, response);
             return;
         }
-        
+
         try {
             HttpServletRequest httpServletRequest = (HttpServletRequest) request;
 

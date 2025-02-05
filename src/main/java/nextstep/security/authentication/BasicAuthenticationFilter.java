@@ -1,14 +1,11 @@
-package nextstep.security;
+package nextstep.security.authentication;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
-import nextstep.security.authentication.AuthenticationManager;
-import nextstep.security.authentication.DaoAuthenticationProvider;
-import nextstep.security.authentication.ProviderManager;
-import nextstep.security.authentication.UsernamePasswordAuthenticationToken;
 import nextstep.security.core.Authentication;
+import nextstep.security.core.userdetails.UserDetailsService;
 import nextstep.security.exception.AuthenticationException;
 import nextstep.security.util.Base64Convertor;
 import org.springframework.http.HttpHeaders;

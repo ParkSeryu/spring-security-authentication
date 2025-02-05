@@ -1,8 +1,8 @@
 package nextstep.security.authentication;
 
 import java.security.Principal;
-import nextstep.security.UserDetails;
 import nextstep.security.core.Authentication;
+import nextstep.security.core.userdetails.UserDetails;
 
 public class UsernamePasswordAuthenticationToken implements Authentication {
     private final Object principal;
