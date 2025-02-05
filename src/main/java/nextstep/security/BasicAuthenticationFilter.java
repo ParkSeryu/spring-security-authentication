@@ -29,7 +29,11 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
     private void checkAuthentication(HttpServletRequest request) {
         String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
 
-        if (authorization == null || !authorization.startsWith(AUTHENTICATION_SCHEME_BASIC)) {
+        if (authorization == null) {
+            return;
+        }
+
+        if (!authorization.startsWith(AUTHENTICATION_SCHEME_BASIC)) {
             throw new AuthenticationException();
         }
 

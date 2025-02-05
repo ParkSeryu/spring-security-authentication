@@ -1,11 +1,13 @@
 package nextstep.security;
 
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.io.IOException;
 import java.util.Map;
 import nextstep.security.exception.AuthenticationException;
 import nextstep.security.exception.AuthenticationServiceException;
@@ -13,6 +15,7 @@ import org.springframework.web.filter.GenericFilterBean;
 
 public class UsernamePasswordAuthenticationFilter extends GenericFilterBean {
     public static final String SPRING_SECURITY_CONTEXT_KEY = "SPRING_SECURITY_CONTEXT";
+    private static final String DEFAULT_REQUEST_URI = "/login";
 
     private final UserDetailsService userDetailsService;
 
@@ -21,7 +24,12 @@ public class UsernamePasswordAuthenticationFilter extends GenericFilterBean {
     }
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) {
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+            throws ServletException, IOException {
+        if (!DEFAULT_REQUEST_URI.equals(((HttpServletRequest) request).getRequestURI())) {
+            chain.doFilter(request, response);
+            return;
+        }
         try {
             HttpServletRequest httpServletRequest = (HttpServletRequest) request;
 
@@ -39,7 +47,7 @@ public class UsernamePasswordAuthenticationFilter extends GenericFilterBean {
             }
             HttpSession session = ((HttpServletRequest) request).getSession();
             session.setAttribute(SPRING_SECURITY_CONTEXT_KEY, userDetails);
-            
+
         } catch (AuthenticationServiceException e) {
             ((HttpServletResponse) response).setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
         } catch (Exception e) {

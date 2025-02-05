@@ -1,11 +1,18 @@
 package nextstep.app.config;
 
+import java.util.List;
 import nextstep.app.domain.Member;
 import nextstep.app.domain.MemberRepository;
+import nextstep.security.BasicAuthenticationFilter;
 import nextstep.security.UserDetails;
 import nextstep.security.UserDetailsService;
+import nextstep.security.UsernamePasswordAuthenticationFilter;
+import nextstep.security.web.DefaultSecurityFilterChain;
+import nextstep.security.web.FilterChainProxy;
+import nextstep.security.web.SecurityFilterChain;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.filter.DelegatingFilterProxy;
 
 @Configuration
 public class SecurityConfig {
@@ -34,4 +41,23 @@ public class SecurityConfig {
         };
     }
 
+    @Bean
+    public DelegatingFilterProxy delegatingFilterProxy() {
+        return new DelegatingFilterProxy(filterChainProxy(List.of(securityFilterChain())));
+    }
+
+    @Bean
+    public FilterChainProxy filterChainProxy(List<SecurityFilterChain> securityFilterChains) {
+        return new FilterChainProxy(securityFilterChains);
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain() {
+        return new DefaultSecurityFilterChain(
+                List.of(
+                        new UsernamePasswordAuthenticationFilter(userDetailsService()),
+                        new BasicAuthenticationFilter(userDetailsService())
+                )
+        );
+    }
 }
