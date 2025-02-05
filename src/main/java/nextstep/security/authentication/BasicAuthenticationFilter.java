@@ -1,10 +1,13 @@
 package nextstep.security.authentication;
 
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.List;
 import nextstep.security.core.Authentication;
+import nextstep.security.core.context.SecurityContextHolder;
 import nextstep.security.core.userdetails.UserDetailsService;
 import nextstep.security.exception.AuthenticationException;
 import nextstep.security.util.Base64Convertor;
@@ -21,33 +24,46 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws IOException, ServletException {
         try {
-            checkAuthentication(request);
+            Authentication authRequest = convert(request);
+
+            if (authRequest != null) {
+                Authentication authResult = authenticationManager.authenticate(authRequest);
+                SecurityContextHolder.getContext().setAuthentication(authResult);
+            }
+
             filterChain.doFilter(request, response);
-        } catch (Exception e) {
+        } catch (AuthenticationException e) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        } finally {
+            SecurityContextHolder.clearContext();
         }
     }
 
-    private void checkAuthentication(HttpServletRequest request) {
-        String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
+    private Authentication convert(HttpServletRequest request) {
+        String header = request.getHeader(HttpHeaders.AUTHORIZATION);
 
-        if (authorization == null) {
-            return;
+        if (header == null) {
+            return null;
         }
 
-        if (!authorization.startsWith(AUTHENTICATION_SCHEME_BASIC)) {
+        if (!header.startsWith(AUTHENTICATION_SCHEME_BASIC)) {
             throw new AuthenticationException();
         }
 
-        String credentials = authorization.split(" ")[1];
+        String credentials = header.split(" ")[1];
         String decodedString = Base64Convertor.decode(credentials);
+        if (!decodedString.contains(":")) {
+            throw new AuthenticationException();
+        }
         String[] usernameAndPassword = decodedString.split(":");
         String username = usernameAndPassword[0];
         String password = usernameAndPassword[1];
-        Authentication authenticate = authenticationManager.authenticate(
+
+        return authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(username, password, false));
-        this.authenticationManager.authenticate(authenticate);
     }
+
 }
