@@ -3,6 +3,7 @@ package nextstep.app;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import jakarta.servlet.http.HttpSession;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -85,4 +87,26 @@ class FormLoginTest {
 
         response.andExpect(status().isMethodNotAllowed());
     }
+
+    @DisplayName("로그인 후 세션을 통해 회원 목록 조회")
+    @Test
+    void login_after_members() throws Exception {
+        MockHttpSession session = new MockHttpSession();
+        ResultActions loginResponse = mockMvc.perform(post("/login")
+                .param("username", TEST_MEMBER.getEmail())
+                .param("password", TEST_MEMBER.getPassword())
+                .session(session)
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+        ).andDo(print());
+
+        loginResponse.andExpect(status().isOk());
+
+        ResultActions membersResponse = mockMvc.perform(get("/members")
+                .session(session)
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+        );
+
+        membersResponse.andExpect(status().isOk());
+    }
+    
 }
