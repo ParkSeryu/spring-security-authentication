@@ -20,10 +20,7 @@ class HttpSessionSecurityContextRepositoryTest {
     MockHttpSession session = new MockHttpSession();
     MockHttpServletRequest request = new MockHttpServletRequest();
     MockHttpServletResponse response = new MockHttpServletResponse();
-    Authentication authenticationToken = new UsernamePasswordAuthenticationToken(
-            "parkSeryu", "password", false);
     SecurityContextRepository securityContextRepository = new HttpSessionSecurityContextRepository();
-    SecurityContext securityContext = new SecurityContextImpl(authenticationToken);
 
     @BeforeEach
     void setUp() {
