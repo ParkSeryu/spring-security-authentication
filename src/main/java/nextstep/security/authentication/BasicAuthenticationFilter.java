@@ -37,8 +37,6 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         } catch (AuthenticationException e) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        } finally {
-            SecurityContextHolder.clearContext();
         }
     }
 
