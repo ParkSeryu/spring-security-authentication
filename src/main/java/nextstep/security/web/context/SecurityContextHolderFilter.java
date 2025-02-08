@@ -5,7 +5,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import nextstep.security.core.context.SecurityContext;
 import nextstep.security.core.context.SecurityContextHolder;
@@ -23,15 +22,12 @@ public class SecurityContextHolderFilter extends GenericFilterBean {
             throws IOException, ServletException {
         try {
             HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-            HttpServletResponse httpServletResponse = (HttpServletResponse) response;
 
             SecurityContext securityContext = securityContextRepository.loadContext(httpServletRequest);
             SecurityContextHolder.setContext(securityContext);
 
             chain.doFilter(request, response);
 
-            SecurityContext context = SecurityContextHolder.getContext();
-            securityContextRepository.saveContext(context, httpServletRequest, httpServletResponse);
         } finally {
             SecurityContextHolder.clearContext();
         }
