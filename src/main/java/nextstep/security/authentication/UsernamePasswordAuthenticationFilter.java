@@ -7,12 +7,10 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 import nextstep.security.core.Authentication;
 import nextstep.security.core.context.SecurityContext;
 import nextstep.security.core.context.SecurityContextHolder;
-import nextstep.security.core.userdetails.UserDetailsService;
 import nextstep.security.exception.AuthenticationServiceException;
 import org.springframework.web.filter.GenericFilterBean;
 
@@ -21,8 +19,8 @@ public class UsernamePasswordAuthenticationFilter extends GenericFilterBean {
 
     private final AuthenticationManager authenticationManager;
 
-    public UsernamePasswordAuthenticationFilter(UserDetailsService userDetailsService) {
-        this.authenticationManager = new ProviderManager(List.of(new DaoAuthenticationProvider(userDetailsService)));
+    public UsernamePasswordAuthenticationFilter(AuthenticationManager authenticationManager) {
+        this.authenticationManager = authenticationManager;
     }
 
     @Override

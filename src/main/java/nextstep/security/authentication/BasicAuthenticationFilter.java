@@ -5,10 +5,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.List;
 import nextstep.security.core.Authentication;
 import nextstep.security.core.context.SecurityContextHolder;
-import nextstep.security.core.userdetails.UserDetailsService;
 import nextstep.security.exception.AuthenticationException;
 import nextstep.security.util.Base64Convertor;
 import org.springframework.http.HttpHeaders;
@@ -19,8 +17,8 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 
     private final AuthenticationManager authenticationManager;
 
-    public BasicAuthenticationFilter(UserDetailsService userDetailsService) {
-        this.authenticationManager = new ProviderManager(List.of(new DaoAuthenticationProvider(userDetailsService)));
+    public BasicAuthenticationFilter(AuthenticationManager authenticationManager) {
+        this.authenticationManager = authenticationManager;
     }
 
     @Override

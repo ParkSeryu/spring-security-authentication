@@ -3,7 +3,11 @@ package nextstep.app.config;
 import java.util.List;
 import nextstep.app.domain.Member;
 import nextstep.app.domain.MemberRepository;
+import nextstep.security.authentication.AuthenticationManager;
+import nextstep.security.authentication.AuthenticationProvider;
 import nextstep.security.authentication.BasicAuthenticationFilter;
+import nextstep.security.authentication.DaoAuthenticationProvider;
+import nextstep.security.authentication.ProviderManager;
 import nextstep.security.authentication.UsernamePasswordAuthenticationFilter;
 import nextstep.security.core.userdetails.UserDetails;
 import nextstep.security.core.userdetails.UserDetailsService;
@@ -54,12 +58,19 @@ public class SecurityConfig {
     }
 
     @Bean
+    public AuthenticationManager authenticationManager() {
+        AuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider(userDetailsService());
+        return new ProviderManager(List.of(daoAuthenticationProvider));
+    }
+
+    @Bean
+
     public SecurityFilterChain securityFilterChain() {
         return new DefaultSecurityFilterChain(
                 List.of(
                         new SecurityContextHolderFilter(new HttpSessionSecurityContextRepository()),
-                        new UsernamePasswordAuthenticationFilter(userDetailsService()),
-                        new BasicAuthenticationFilter(userDetailsService())
+                        new UsernamePasswordAuthenticationFilter(authenticationManager()),
+                        new BasicAuthenticationFilter(authenticationManager())
                 )
         );
     }
